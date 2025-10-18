@@ -29,7 +29,6 @@ public class ItemForm extends JFrame {
         setLayout(new BorderLayout(10, 10));
         setLocationRelativeTo(null);
 
-        // Top panel with theme toggle
         JPanel top = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         btnTheme = new JButton();
         btnTheme.setFocusPainted(false);
@@ -46,7 +45,6 @@ public class ItemForm extends JFrame {
         top.add(btnTheme);
         add(top, BorderLayout.NORTH);
 
-        // Form panel
         JPanel formPanel = new JPanel(new GridLayout(0, 2, 10, 10));
         formPanel.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
 
