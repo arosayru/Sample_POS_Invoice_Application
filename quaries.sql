@@ -14,3 +14,5 @@ CREATE TABLE items (
     status VARCHAR(10) DEFAULT 'Active',
     image_path VARCHAR(255)
 );
+
+SELECT * FROM items;
