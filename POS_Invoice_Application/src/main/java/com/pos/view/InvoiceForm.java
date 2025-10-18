@@ -6,6 +6,7 @@ import com.pos.dao.ItemDAO;
 import com.pos.model.Invoice;
 import com.pos.model.InvoiceItem;
 import com.pos.model.Item;
+import com.pos.util.ThemeManager;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -21,6 +22,7 @@ public class InvoiceForm extends JFrame {
     private JLabel lblSubtotal, lblTotal;
     private JTable tblItems;
     private DefaultTableModel tableModel;
+    private JButton btnTheme;
 
     private List<Item> availableItems;
 
@@ -31,22 +33,47 @@ public class InvoiceForm extends JFrame {
         setLocationRelativeTo(null);
         setLayout(new BorderLayout(10,10));
 
-        // Top panel
-        JPanel top = new JPanel(new FlowLayout());
+        // ======= TOP PANEL =======
+        JPanel top = new JPanel(new FlowLayout(FlowLayout.LEFT));
         cmbBillingType = new JComboBox<>(new String[]{"Retail", "Wholesale"});
         txtDiscount = new JTextField(5);
+
         top.add(new JLabel("Billing Type:"));
         top.add(cmbBillingType);
         top.add(new JLabel("Discount:"));
         top.add(txtDiscount);
+
+        // Add space before theme button
+        top.add(Box.createHorizontalStrut(300));
+
+        // ======= THEME TOGGLE BUTTON =======
+        btnTheme = new JButton();
+        btnTheme.setFocusPainted(false);
+        btnTheme.setBorderPainted(false);
+        btnTheme.setContentAreaFilled(false);
+        btnTheme.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        btnTheme.setPreferredSize(new Dimension(32, 32));
+        btnTheme.setToolTipText("Toggle Theme");
+
+        // set initial icon (light mode)
+        java.net.URL iconURL = getClass().getResource("/icons/sun.png");
+        if (iconURL != null) {
+            btnTheme.setIcon(new ImageIcon(iconURL));
+        } else {
+            System.err.println("Icon not found: /icons/sun.png");
+        }
+
+        btnTheme.addActionListener(e -> ThemeManager.toggleTheme(this, btnTheme));
+        top.add(btnTheme);
+
         add(top, BorderLayout.NORTH);
 
-        // Center table
+        // ======= CENTER TABLE =======
         tableModel = new DefaultTableModel(new Object[]{"Item ID","Item Name","Qty","Price","Total"}, 0);
         tblItems = new JTable(tableModel);
         add(new JScrollPane(tblItems), BorderLayout.CENTER);
 
-        // Bottom panel
+        // ======= BOTTOM PANEL =======
         JPanel bottom = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         lblSubtotal = new JLabel("Subtotal: 0.00");
         lblTotal = new JLabel("Total: 0.00");
@@ -58,10 +85,10 @@ public class InvoiceForm extends JFrame {
         bottom.add(btnSave);
         add(bottom, BorderLayout.SOUTH);
 
-        // Load items
+        // ======= LOAD ITEMS =======
         loadAvailableItems();
 
-        // Button actions
+        // ======= BUTTON ACTIONS =======
         btnAddItem.addActionListener(e -> addItemToInvoice());
         btnSave.addActionListener(e -> saveInvoice());
 
@@ -158,6 +185,6 @@ public class InvoiceForm extends JFrame {
 
     public static void main(String[] args) {
         FlatLightLaf.setup();
-        new InvoiceForm();
+        SwingUtilities.invokeLater(InvoiceForm::new);
     }
 }

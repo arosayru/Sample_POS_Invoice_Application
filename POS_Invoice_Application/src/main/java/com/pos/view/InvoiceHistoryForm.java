@@ -4,6 +4,7 @@ import com.formdev.flatlaf.FlatLightLaf;
 import com.pos.dao.InvoiceHistoryDAO;
 import com.pos.model.Invoice;
 import com.pos.model.InvoiceItem;
+import com.pos.util.ThemeManager;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -15,7 +16,7 @@ public class InvoiceHistoryForm extends JFrame {
     private JTable tblInvoices;
     private DefaultTableModel tableModel;
     private JTextField txtSearch;
-    private JButton btnSearch, btnCancel, btnViewDetails;
+    private JButton btnSearch, btnCancel, btnViewDetails, btnTheme;
 
     public InvoiceHistoryForm() {
         setTitle("Invoice History");
@@ -24,18 +25,45 @@ public class InvoiceHistoryForm extends JFrame {
         setLayout(new BorderLayout(10,10));
         setLocationRelativeTo(null);
 
+        // ======= TOP PANEL WITH SEARCH + THEME TOGGLE =======
         JPanel top = new JPanel(new FlowLayout(FlowLayout.LEFT));
         txtSearch = new JTextField(20);
         btnSearch = new JButton("Search");
         top.add(new JLabel("Invoice Number:"));
         top.add(txtSearch);
         top.add(btnSearch);
+
+        // add space between search and theme button
+        top.add(Box.createHorizontalStrut(400));
+
+        // Theme toggle button (icon-based)
+        btnTheme = new JButton();
+        btnTheme.setFocusPainted(false);
+        btnTheme.setBorderPainted(false);
+        btnTheme.setContentAreaFilled(false);
+        btnTheme.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        btnTheme.setPreferredSize(new Dimension(32, 32));
+        btnTheme.setToolTipText("Toggle Theme");
+
+        // set initial icon (light mode)
+        java.net.URL iconURL = getClass().getResource("/icons/sun.png");
+        if (iconURL != null) {
+            btnTheme.setIcon(new ImageIcon(iconURL));
+        } else {
+            System.err.println("Icon not found: /icons/sun.png");
+        }
+
+        btnTheme.addActionListener(e -> ThemeManager.toggleTheme(this, btnTheme));
+        top.add(btnTheme);
+
         add(top, BorderLayout.NORTH);
 
+        // ======= TABLE CENTER =======
         tableModel = new DefaultTableModel(new Object[]{"ID","Invoice No","Billing Type","Subtotal","Discount","Total","Status"}, 0);
         tblInvoices = new JTable(tableModel);
         add(new JScrollPane(tblInvoices), BorderLayout.CENTER);
 
+        // ======= BOTTOM BUTTONS =======
         JPanel bottom = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         btnViewDetails = new JButton("View Details");
         btnCancel = new JButton("Cancel Invoice");
@@ -43,8 +71,10 @@ public class InvoiceHistoryForm extends JFrame {
         bottom.add(btnCancel);
         add(bottom, BorderLayout.SOUTH);
 
+        // ======= LOAD INITIAL DATA =======
         loadInvoices();
 
+        // ======= EVENT HANDLERS =======
         btnSearch.addActionListener(e -> searchInvoice());
         btnViewDetails.addActionListener(e -> viewDetails());
         btnCancel.addActionListener(e -> cancelInvoice());
@@ -158,6 +188,6 @@ public class InvoiceHistoryForm extends JFrame {
 
     public static void main(String[] args) {
         FlatLightLaf.setup();
-        new InvoiceHistoryForm();
+        SwingUtilities.invokeLater(InvoiceHistoryForm::new);
     }
 }

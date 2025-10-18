@@ -3,6 +3,7 @@ package com.pos.view;
 import com.formdev.flatlaf.FlatLightLaf;
 import com.pos.dao.ItemDAO;
 import com.pos.model.Item;
+import com.pos.util.ThemeManager;
 
 import javax.swing.*;
 import java.awt.*;
@@ -10,37 +11,65 @@ import java.sql.SQLException;
 
 public class ItemForm extends JFrame {
     private JTextField txtCode, txtName, txtCategory, txtCost, txtWholesale, txtRetail;
-    private JButton btnSave;
+    private JButton btnSave, btnTheme;
 
     public ItemForm() {
         setTitle("Item Management");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(400, 400);
-        setLayout(new GridLayout(0, 2, 10, 10));
+        setLayout(new BorderLayout(10, 10));
         setLocationRelativeTo(null);
 
-        add(new JLabel("Item Code:"));
-        txtCode = new JTextField(); add(txtCode);
+        // ======= TOP PANEL (Theme toggle button) =======
+        JPanel top = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 
-        add(new JLabel("Item Name:"));
-        txtName = new JTextField(); add(txtName);
+        btnTheme = new JButton();
+        btnTheme.setFocusPainted(false);
+        btnTheme.setBorderPainted(false);
+        btnTheme.setContentAreaFilled(false);
+        btnTheme.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        btnTheme.setPreferredSize(new Dimension(32, 32));
+        btnTheme.setToolTipText("Toggle Theme");
 
-        add(new JLabel("Category:"));
-        txtCategory = new JTextField(); add(txtCategory);
+        // set initial icon (light mode)
+        java.net.URL iconURL = getClass().getResource("/icons/sun.png");
+        if (iconURL != null) {
+            btnTheme.setIcon(new ImageIcon(iconURL));
+        }
 
-        add(new JLabel("Cost:"));
-        txtCost = new JTextField(); add(txtCost);
+        btnTheme.addActionListener(e -> ThemeManager.toggleTheme(this, btnTheme));
 
-        add(new JLabel("Wholesale Price:"));
-        txtWholesale = new JTextField(); add(txtWholesale);
+        top.add(btnTheme);
+        add(top, BorderLayout.NORTH);
 
-        add(new JLabel("Retail Price:"));
-        txtRetail = new JTextField(); add(txtRetail);
+        // ======= CENTER FORM PANEL =======
+        JPanel formPanel = new JPanel(new GridLayout(0, 2, 10, 10));
 
+        formPanel.add(new JLabel("Item Code:"));
+        txtCode = new JTextField(); formPanel.add(txtCode);
+
+        formPanel.add(new JLabel("Item Name:"));
+        txtName = new JTextField(); formPanel.add(txtName);
+
+        formPanel.add(new JLabel("Category:"));
+        txtCategory = new JTextField(); formPanel.add(txtCategory);
+
+        formPanel.add(new JLabel("Cost:"));
+        txtCost = new JTextField(); formPanel.add(txtCost);
+
+        formPanel.add(new JLabel("Wholesale Price:"));
+        txtWholesale = new JTextField(); formPanel.add(txtWholesale);
+
+        formPanel.add(new JLabel("Retail Price:"));
+        txtRetail = new JTextField(); formPanel.add(txtRetail);
+
+        // Save Button
         btnSave = new JButton("Save Item");
         btnSave.addActionListener(e -> saveItem());
-        add(new JLabel());
-        add(btnSave);
+        formPanel.add(new JLabel());
+        formPanel.add(btnSave);
+
+        add(formPanel, BorderLayout.CENTER);
 
         setVisible(true);
     }
