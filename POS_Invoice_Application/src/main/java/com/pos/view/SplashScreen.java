@@ -55,12 +55,12 @@ public class SplashScreen extends JWindow {
         bottomPanel.setOpaque(false);
         bottomPanel.setLayout(new BoxLayout(bottomPanel, BoxLayout.Y_AXIS));
 
-        JLabel lblVersion = new JLabel("Version 1.0.0", SwingConstants.CENTER);
+        JLabel lblVersion = new JLabel("Version 0.0.1", SwingConstants.CENTER);
         lblVersion.setFont(new Font("Segoe UI", Font.PLAIN, 12));
         lblVersion.setForeground(new Color(100, 100, 100));
         lblVersion.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        JLabel lblCopyright = new JLabel("© 2024 All rights reserved.", SwingConstants.CENTER);
+        JLabel lblCopyright = new JLabel("© 2025 All rights reserved - Developed by Adithya", SwingConstants.CENTER);
         lblCopyright.setFont(new Font("Segoe UI", Font.PLAIN, 11));
         lblCopyright.setForeground(new Color(160, 160, 160));
         lblCopyright.setAlignmentX(Component.CENTER_ALIGNMENT);
