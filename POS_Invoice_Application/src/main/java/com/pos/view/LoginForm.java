@@ -42,7 +42,7 @@ public class LoginForm extends JFrame {
             if (user != null) {
                 JOptionPane.showMessageDialog(this, "Welcome " + user.getUsername() + "!");
                 dispose();
-                new InvoiceForm(); // Open main POS window after login
+                new InvoiceForm();
             } else {
                 JOptionPane.showMessageDialog(this, "Invalid credentials!");
             }
