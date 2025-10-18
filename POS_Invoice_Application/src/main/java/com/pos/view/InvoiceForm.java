@@ -1,8 +1,8 @@
 package com.pos.view;
 
 import com.formdev.flatlaf.FlatLightLaf;
-import com.pos.dao.InvoiceDAO;
-import com.pos.dao.ItemDAO;
+import com.pos.controller.InvoiceController;
+import com.pos.controller.ItemController;
 import com.pos.model.Invoice;
 import com.pos.model.InvoiceItem;
 import com.pos.model.Item;
@@ -26,14 +26,19 @@ public class InvoiceForm extends JFrame {
 
     private List<Item> availableItems;
 
+    private final ItemController itemController;
+    private final InvoiceController invoiceController;
+
     public InvoiceForm() {
+        itemController = new ItemController();
+        invoiceController = new InvoiceController();
+
         setTitle("Create Invoice");
         setSize(700, 500);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout(10,10));
 
-        // ======= TOP PANEL =======
         JPanel top = new JPanel(new FlowLayout(FlowLayout.LEFT));
         cmbBillingType = new JComboBox<>(new String[]{"Retail", "Wholesale"});
         txtDiscount = new JTextField(5);
@@ -43,10 +48,8 @@ public class InvoiceForm extends JFrame {
         top.add(new JLabel("Discount:"));
         top.add(txtDiscount);
 
-        // Add space before theme button
         top.add(Box.createHorizontalStrut(300));
 
-        // ======= THEME TOGGLE BUTTON =======
         btnTheme = new JButton();
         btnTheme.setFocusPainted(false);
         btnTheme.setBorderPainted(false);
@@ -55,7 +58,6 @@ public class InvoiceForm extends JFrame {
         btnTheme.setPreferredSize(new Dimension(32, 32));
         btnTheme.setToolTipText("Toggle Theme");
 
-        // set initial icon (light mode)
         java.net.URL iconURL = getClass().getResource("/icons/sun.png");
         if (iconURL != null) {
             btnTheme.setIcon(new ImageIcon(iconURL));
@@ -68,12 +70,10 @@ public class InvoiceForm extends JFrame {
 
         add(top, BorderLayout.NORTH);
 
-        // ======= CENTER TABLE =======
         tableModel = new DefaultTableModel(new Object[]{"Item ID","Item Name","Qty","Price","Total"}, 0);
         tblItems = new JTable(tableModel);
         add(new JScrollPane(tblItems), BorderLayout.CENTER);
 
-        // ======= BOTTOM PANEL =======
         JPanel bottom = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         lblSubtotal = new JLabel("Subtotal: 0.00");
         lblTotal = new JLabel("Total: 0.00");
@@ -85,10 +85,8 @@ public class InvoiceForm extends JFrame {
         bottom.add(btnSave);
         add(bottom, BorderLayout.SOUTH);
 
-        // ======= LOAD ITEMS =======
         loadAvailableItems();
 
-        // ======= BUTTON ACTIONS =======
         btnAddItem.addActionListener(e -> addItemToInvoice());
         btnSave.addActionListener(e -> saveInvoice());
 
@@ -97,14 +95,14 @@ public class InvoiceForm extends JFrame {
 
     private void loadAvailableItems() {
         try {
-            availableItems = new ItemDAO().getAllItems();
+            availableItems = itemController.getAllItems();
         } catch (SQLException e) {
-            JOptionPane.showMessageDialog(this, "Failed to load items: " + e.getMessage());
+            JOptionPane.showMessageDialog(this, "Failed to load items: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
     private void addItemToInvoice() {
-        if (availableItems.isEmpty()) {
+        if (availableItems == null || availableItems.isEmpty()) {
             JOptionPane.showMessageDialog(this, "No items available!");
             return;
         }
@@ -119,12 +117,27 @@ public class InvoiceForm extends JFrame {
         if (item == null) return;
 
         String qtyStr = JOptionPane.showInputDialog(this, "Enter Quantity:");
-        int qty = Integer.parseInt(qtyStr);
-        double price = (cmbBillingType.getSelectedItem().equals("Wholesale")) ? item.getWholesalePrice() : item.getRetailPrice();
-        double total = qty * price;
+        if (qtyStr == null || qtyStr.trim().isEmpty()) return;
 
-        tableModel.addRow(new Object[]{item.getId(), item.getItemName(), qty, price, total});
-        recalcTotals();
+        try {
+            int qty = Integer.parseInt(qtyStr);
+            if (qty <= 0) {
+                JOptionPane.showMessageDialog(this, "Quantity must be greater than zero!");
+                return;
+            }
+
+            double price = (cmbBillingType.getSelectedItem().equals("Wholesale"))
+                    ? item.getWholesalePrice()
+                    : item.getRetailPrice();
+
+            double total = qty * price;
+
+            tableModel.addRow(new Object[]{item.getId(), item.getItemName(), qty, price, total});
+            recalcTotals();
+
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(this, "Please enter a valid number for quantity!");
+        }
     }
 
     private void recalcTotals() {
@@ -134,7 +147,15 @@ public class InvoiceForm extends JFrame {
         }
         lblSubtotal.setText(String.format("Subtotal: %.2f", subtotal));
 
-        double discount = txtDiscount.getText().isEmpty() ? 0 : Double.parseDouble(txtDiscount.getText());
+        double discount = 0;
+        try {
+            if (!txtDiscount.getText().isEmpty()) {
+                discount = Double.parseDouble(txtDiscount.getText());
+            }
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Invalid discount value!");
+        }
+
         double total = subtotal - discount;
         lblTotal.setText(String.format("Total: %.2f", total));
     }
@@ -170,16 +191,17 @@ public class InvoiceForm extends JFrame {
             invoice.setStatus("Active");
             invoice.setItems(itemList);
 
-            InvoiceDAO dao = new InvoiceDAO();
-            int invoiceId = dao.saveInvoice(invoice);
-            dao.saveInvoiceItems(invoiceId, itemList);
+            int invoiceId = invoiceController.saveInvoice(invoice);
+            invoiceController.saveInvoiceItems(invoiceId, itemList);
 
             JOptionPane.showMessageDialog(this, "Invoice saved successfully!");
             tableModel.setRowCount(0);
             recalcTotals();
 
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(this, "Database error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Error saving invoice: " + e.getMessage());
+            JOptionPane.showMessageDialog(this, "Error saving invoice: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
