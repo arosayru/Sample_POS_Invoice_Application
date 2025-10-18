@@ -5,6 +5,7 @@ import com.pos.dao.InvoiceHistoryDAO;
 import com.pos.model.Invoice;
 import com.pos.model.InvoiceItem;
 import com.pos.util.ThemeManager;
+import com.pos.util.PDFGenerator;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -155,8 +156,20 @@ public class InvoiceHistoryForm extends JFrame {
             JScrollPane scrollPane = new JScrollPane(area);
             JOptionPane.showMessageDialog(this, scrollPane, "Invoice Details", JOptionPane.INFORMATION_MESSAGE);
 
+            // 🪄 Ask user if they want to generate a PDF
+            int confirm = JOptionPane.showConfirmDialog(this,
+                    "Generate PDF for this invoice?",
+                    "Export",
+                    JOptionPane.YES_NO_OPTION);
+
+            if (confirm == JOptionPane.YES_OPTION) {
+                PDFGenerator.generateInvoicePDF(inv);
+            }
+
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(this, "Error loading details: " + e.getMessage());
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error generating PDF: " + e.getMessage());
         }
     }
 
