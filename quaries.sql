@@ -16,3 +16,30 @@ CREATE TABLE items (
 );
 
 SELECT * FROM items;
+
+CREATE TABLE invoices (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    invoice_number VARCHAR(50) UNIQUE NOT NULL,
+    date DATETIME DEFAULT CURRENT_TIMESTAMP,
+    billing_type VARCHAR(20),
+    subtotal DECIMAL(10,2),
+    discount DECIMAL(10,2),
+    total DECIMAL(10,2),
+    status VARCHAR(20) DEFAULT 'Active'
+);
+
+SELECT * FROM invoices;
+
+CREATE TABLE invoice_items (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    invoice_id INT,
+    item_id INT,
+    quantity INT,
+    price DECIMAL(10,2),
+    total DECIMAL(10,2),
+    FOREIGN KEY (invoice_id) REFERENCES invoices(id),
+    FOREIGN KEY (item_id) REFERENCES items(id)
+);
+
+SELECT * FROM invoice_items;
+
