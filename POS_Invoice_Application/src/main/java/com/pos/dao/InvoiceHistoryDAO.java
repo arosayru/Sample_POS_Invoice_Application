@@ -89,4 +89,32 @@ public class InvoiceHistoryDAO {
             ps.executeUpdate();
         }
     }
+
+    // --- Filter invoices by date range ---
+    public List<Invoice> getInvoicesByDateRange(java.time.LocalDate from, java.time.LocalDate to) throws SQLException {
+        List<Invoice> list = new ArrayList<>();
+        String sql = "SELECT * FROM invoices WHERE DATE(date) BETWEEN ? AND ? ORDER BY date DESC";
+
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setDate(1, java.sql.Date.valueOf(from));
+            ps.setDate(2, java.sql.Date.valueOf(to));
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Invoice inv = new Invoice();
+                    inv.setId(rs.getInt("id"));
+                    inv.setInvoiceNumber(rs.getString("invoice_number"));
+                    inv.setBillingType(rs.getString("billing_type"));
+                    inv.setSubtotal(rs.getDouble("subtotal"));
+                    inv.setDiscount(rs.getDouble("discount"));
+                    inv.setTotal(rs.getDouble("total"));
+                    inv.setStatus(rs.getString("status"));
+                    list.add(inv);
+                }
+            }
+        }
+        return list;
+    }
+
 }
