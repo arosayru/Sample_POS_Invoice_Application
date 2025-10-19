@@ -11,8 +11,8 @@ public class Main {
         FlatLightLaf.setup();
 
         SwingUtilities.invokeLater(() -> {
-            //new SplashScreen();
-            new DashboardForm();
+            new SplashScreen();
+            //new DashboardForm();
         });
     }
 }

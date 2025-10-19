@@ -25,7 +25,6 @@ public class ItemForm extends JFrame {
 
     public ItemForm() {
         itemController = new ItemController();
-
         FlatLightLaf.setup();
         initUI();
         setVisible(true);
@@ -84,10 +83,10 @@ public class ItemForm extends JFrame {
 
         txtSearch = new JTextField("Search by Item Name, Code, or Category");
         txtSearch.setFont(new Font("Segoe UI", Font.PLAIN, 15));
-        txtSearch.setPreferredSize(new Dimension(350, 35));
+        txtSearch.setPreferredSize(new Dimension(350, 30));
         txtSearch.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(new Color(200, 200, 200), 1),
-                new EmptyBorder(5, 12, 5, 12)
+                new EmptyBorder(4, 10, 4, 10)
         ));
         txtSearch.setForeground(Color.GRAY);
 
@@ -127,11 +126,11 @@ public class ItemForm extends JFrame {
         });
 
         btnAddItem = new JButton("+ Add New Item");
-        btnAddItem.setFont(new Font("Segoe UI", Font.BOLD, 15));
+        btnAddItem.setFont(new Font("Segoe UI", Font.BOLD, 14));
         btnAddItem.setBackground(new Color(67, 160, 71));
         btnAddItem.setForeground(Color.WHITE);
         btnAddItem.setFocusPainted(false);
-        btnAddItem.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+        btnAddItem.setBorder(BorderFactory.createEmptyBorder(7, 16, 7, 16));
         btnAddItem.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         btnAddItem.addActionListener(e -> openAddOrEditDialog(null));
 
@@ -269,7 +268,6 @@ public class ItemForm extends JFrame {
         btnCancel.setForeground(Color.WHITE);
         btnCancel.setFocusPainted(false);
         btnCancel.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
-
         btnCancel.addActionListener(e -> dialog.dispose());
 
         btnSave.addActionListener(e -> {
@@ -346,10 +344,8 @@ public class ItemForm extends JFrame {
         public ActionCellRenderer() {
             panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 6, 0));
             panel.setOpaque(true);
-
             editBtn = createStyledButton("Edit", new Color(33, 150, 243));
             deleteBtn = createStyledButton("Delete", new Color(244, 67, 54));
-
             panel.add(editBtn);
             panel.add(deleteBtn);
         }
