@@ -80,7 +80,7 @@ public class LoginForm extends JFrame {
         JPanel bottomPanel = new JPanel(new BorderLayout());
         bottomPanel.setOpaque(false);
         bottomPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
-        
+
         lblDateTime = new JLabel("", SwingConstants.CENTER);
         lblDateTime.setFont(new Font("Segoe UI", Font.PLAIN, 12));
         lblDateTime.setForeground(new Color(120, 120, 120));

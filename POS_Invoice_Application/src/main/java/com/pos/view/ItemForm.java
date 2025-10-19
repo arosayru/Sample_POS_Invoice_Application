@@ -81,12 +81,15 @@ public class ItemForm extends JFrame {
         JPanel searchPanel = new JPanel(new BorderLayout(10, 10));
         searchPanel.setOpaque(false);
 
+        JPanel innerSearchPanel = new JPanel(new BorderLayout(10, 0));
+        innerSearchPanel.setOpaque(false);
+        innerSearchPanel.setPreferredSize(new Dimension(0, 45)); // fixed height row
+
         txtSearch = new JTextField("Search by Item Name, Code, or Category");
-        txtSearch.setFont(new Font("Segoe UI", Font.PLAIN, 15));
-        txtSearch.setPreferredSize(new Dimension(350, 30));
+        txtSearch.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         txtSearch.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(new Color(200, 200, 200), 1),
-                new EmptyBorder(4, 10, 4, 10)
+                new EmptyBorder(5, 10, 5, 10)
         ));
         txtSearch.setForeground(Color.GRAY);
 
@@ -126,16 +129,19 @@ public class ItemForm extends JFrame {
         });
 
         btnAddItem = new JButton("+ Add New Item");
-        btnAddItem.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        btnAddItem.setFont(new Font("Segoe UI", Font.BOLD, 13));
         btnAddItem.setBackground(new Color(67, 160, 71));
         btnAddItem.setForeground(Color.WHITE);
         btnAddItem.setFocusPainted(false);
-        btnAddItem.setBorder(BorderFactory.createEmptyBorder(7, 16, 7, 16));
+        btnAddItem.setBorder(BorderFactory.createEmptyBorder(6, 16, 6, 16));
         btnAddItem.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        btnAddItem.setPreferredSize(new Dimension(180, 40)); // fixed button height
         btnAddItem.addActionListener(e -> openAddOrEditDialog(null));
 
-        searchPanel.add(txtSearch, BorderLayout.CENTER);
-        searchPanel.add(btnAddItem, BorderLayout.EAST);
+        innerSearchPanel.add(txtSearch, BorderLayout.CENTER);
+        innerSearchPanel.add(btnAddItem, BorderLayout.EAST);
+
+        searchPanel.add(innerSearchPanel, BorderLayout.NORTH);
         centerPanel.add(searchPanel, BorderLayout.CENTER);
 
         String[] columns = {"ID", "Code", "Name", "Category", "Cost", "Wholesale", "Retail", "Label", "Credit", "Status", "Actions"};
