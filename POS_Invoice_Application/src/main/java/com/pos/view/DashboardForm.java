@@ -39,7 +39,6 @@ public class DashboardForm extends JFrame {
         setLayout(new BorderLayout());
         getContentPane().setBackground(new Color(245, 247, 250));
 
-        // ======= TOP BAR =======
         JPanel topBar = new JPanel(new BorderLayout());
         topBar.setOpaque(false);
         topBar.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
@@ -61,7 +60,6 @@ public class DashboardForm extends JFrame {
         topBar.add(themePanel, BorderLayout.EAST);
         add(topBar, BorderLayout.NORTH);
 
-        // ======= CENTER PANEL =======
         JPanel contentPanel = new JPanel(new GridBagLayout());
         contentPanel.setOpaque(false);
         GridBagConstraints gbc = new GridBagConstraints();
@@ -70,7 +68,6 @@ public class DashboardForm extends JFrame {
         gbc.weightx = 1;
         gbc.weighty = 1;
 
-        // ======= LEFT PANEL (Item List) =======
         JPanel leftPanel = new JPanel(new BorderLayout(10, 10));
         leftPanel.setOpaque(false);
 
@@ -95,14 +92,12 @@ public class DashboardForm extends JFrame {
         gbc.weightx = 0.4;
         contentPanel.add(leftPanel, gbc);
 
-        // ======= SEPARATOR =======
         JSeparator sep = new JSeparator(SwingConstants.VERTICAL);
         sep.setForeground(new Color(210, 210, 210));
         gbc.gridx = 1;
         gbc.weightx = 0.02;
         contentPanel.add(sep, gbc);
 
-        // ======= RIGHT PANEL (Main Buttons) =======
         JPanel rightPanel = new JPanel(new GridLayout(2, 2, 20, 20));
         rightPanel.setOpaque(false);
 
@@ -139,7 +134,6 @@ public class DashboardForm extends JFrame {
 
         add(contentPanel, BorderLayout.CENTER);
 
-        // ======= BOTTOM BAR =======
         JPanel bottomBar = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
         bottomBar.setOpaque(false);
 
