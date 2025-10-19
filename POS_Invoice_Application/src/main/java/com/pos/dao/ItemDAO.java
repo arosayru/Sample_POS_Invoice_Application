@@ -48,8 +48,10 @@ public class ItemDAO {
                 item.setCost(rs.getDouble("cost"));
                 item.setWholesalePrice(rs.getDouble("wholesale_price"));
                 item.setRetailPrice(rs.getDouble("retail_price"));
-                item.setWholesalePrice(rs.getDouble("wholesale_price"));
+                item.setLabelPrice(rs.getDouble("label_price"));
+                item.setCreditPrice(rs.getDouble("credit_price"));
                 item.setStatus(rs.getString("status"));
+                item.setImagePath(rs.getString("image_path"));
                 items.add(item);
             }
         }
@@ -60,6 +62,7 @@ public class ItemDAO {
         String sql = "UPDATE items SET item_code=?, item_name=?, category=?, cost=?, wholesale_price=?, retail_price=?, label_price=?, credit_price=?, status=? WHERE id=?";
         try (Connection con = DBConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
+
             ps.setString(1, item.getItemCode());
             ps.setString(2, item.getItemName());
             ps.setString(3, item.getCategory());
@@ -70,6 +73,7 @@ public class ItemDAO {
             ps.setDouble(8, item.getCreditPrice());
             ps.setString(9, item.getStatus());
             ps.setInt(10, item.getId());
+
             ps.executeUpdate();
         }
     }
@@ -82,5 +86,4 @@ public class ItemDAO {
             ps.executeUpdate();
         }
     }
-
 }

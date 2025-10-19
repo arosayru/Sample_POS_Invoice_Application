@@ -135,7 +135,7 @@ public class ItemForm extends JFrame {
         btnAddItem.setFocusPainted(false);
         btnAddItem.setBorder(BorderFactory.createEmptyBorder(6, 16, 6, 16));
         btnAddItem.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        btnAddItem.setPreferredSize(new Dimension(180, 40)); // fixed button height
+        btnAddItem.setPreferredSize(new Dimension(180, 40));
         btnAddItem.addActionListener(e -> openAddOrEditDialog(null));
 
         innerSearchPanel.add(txtSearch, BorderLayout.CENTER);
