@@ -142,10 +142,12 @@ public class InvoiceForm extends JFrame {
 
         rightPanel.add(infoPanel, BorderLayout.NORTH);
 
-        tableModel = new DefaultTableModel(new Object[]{"Item Name", "Qty", "Price", "Total"}, 0);
+        tableModel = new DefaultTableModel(new Object[]{"Item ID", "Item Name", "Qty", "Price", "Total"}, 0);
         tblItems = new JTable(tableModel);
         tblItems.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         tblItems.setRowHeight(25);
+        tblItems.removeColumn(tblItems.getColumnModel().getColumn(0));
+
         JScrollPane tableScroll = new JScrollPane(tblItems);
         rightPanel.add(tableScroll, BorderLayout.CENTER);
 
@@ -282,7 +284,7 @@ public class InvoiceForm extends JFrame {
             double price = item.getRetailPrice();
             double total = qty * price;
 
-            tableModel.addRow(new Object[]{item.getItemName(), qty, price, total});
+            tableModel.addRow(new Object[]{item.getId(), item.getItemName(), qty, price, total});
             recalcTotals();
 
         } catch (NumberFormatException e) {
@@ -293,7 +295,7 @@ public class InvoiceForm extends JFrame {
     private void recalcTotals() {
         double subtotal = 0;
         for (int i = 0; i < tableModel.getRowCount(); i++) {
-            subtotal += (double) tableModel.getValueAt(i, 3);
+            subtotal += (double) tableModel.getValueAt(i, 4);
         }
         lblSubtotal.setText(String.format("$%.2f", subtotal));
 
@@ -324,10 +326,11 @@ public class InvoiceForm extends JFrame {
 
             for (int i = 0; i < tableModel.getRowCount(); i++) {
                 InvoiceItem ii = new InvoiceItem();
-                ii.setItemName((String) tableModel.getValueAt(i, 0));
-                ii.setQuantity((int) tableModel.getValueAt(i, 1));
-                ii.setPrice((double) tableModel.getValueAt(i, 2));
-                ii.setTotal((double) tableModel.getValueAt(i, 3));
+                ii.setItemId((int) tableModel.getValueAt(i, 0));
+                ii.setItemName((String) tableModel.getValueAt(i, 1));
+                ii.setQuantity((int) tableModel.getValueAt(i, 2));
+                ii.setPrice((double) tableModel.getValueAt(i, 3));
+                ii.setTotal((double) tableModel.getValueAt(i, 4));
                 subtotal += ii.getTotal();
                 itemList.add(ii);
             }
