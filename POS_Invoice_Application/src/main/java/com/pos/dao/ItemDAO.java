@@ -56,19 +56,8 @@ public class ItemDAO {
         return items;
     }
 
-    // Delete item
-    public void deleteItem(int id) throws SQLException {
-        String sql = "DELETE FROM items WHERE id = ?";
-        try (Connection con = DBConnection.getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setInt(1, id);
-            ps.executeUpdate();
-        }
-    }
-
-    // Update item
     public void updateItem(Item item) throws SQLException {
-        String sql = "UPDATE items SET item_code=?, item_name=?, category=?, cost=?, wholesale_price=?, retail_price=?, label_price=?, credit_price=?, status=?, image_path=? WHERE id=?";
+        String sql = "UPDATE items SET item_code=?, item_name=?, category=?, cost=?, wholesale_price=?, retail_price=?, label_price=?, credit_price=?, status=? WHERE id=?";
         try (Connection con = DBConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, item.getItemCode());
@@ -80,9 +69,18 @@ public class ItemDAO {
             ps.setDouble(7, item.getLabelPrice());
             ps.setDouble(8, item.getCreditPrice());
             ps.setString(9, item.getStatus());
-            ps.setString(10, item.getImagePath());
-            ps.setInt(11, item.getId());
+            ps.setInt(10, item.getId());
             ps.executeUpdate();
         }
     }
+
+    public void deleteItem(int id) throws SQLException {
+        String sql = "DELETE FROM items WHERE id=?";
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            ps.executeUpdate();
+        }
+    }
+
 }

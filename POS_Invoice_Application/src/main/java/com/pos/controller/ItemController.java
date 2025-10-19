@@ -24,16 +24,10 @@ public class ItemController {
     }
 
     public void updateItem(Item item) throws SQLException {
-        if (item.getId() <= 0) {
-            throw new IllegalArgumentException("Invalid item ID!");
-        }
         itemDAO.updateItem(item);
     }
 
     public void deleteItem(int id) throws SQLException {
-        if (id <= 0) {
-            throw new IllegalArgumentException("Invalid item ID!");
-        }
         itemDAO.deleteItem(id);
     }
 }
