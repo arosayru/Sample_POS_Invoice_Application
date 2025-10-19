@@ -67,35 +67,25 @@ public class InvoiceForm extends JFrame {
 
         JPanel themePanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
         themePanel.setOpaque(false);
-        JLabel lblTheme = new JLabel("Light/Dark Theme");
-        btnTheme = new JButton();
-        btnTheme.setFocusPainted(false);
-        btnTheme.setBorderPainted(false);
-        btnTheme.setContentAreaFilled(false);
-        btnTheme.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        btnTheme.setPreferredSize(new Dimension(32, 32));
 
-        try {
-            java.net.URL iconURL = getClass().getResource("/icons/sun.png");
-            if (iconURL != null) {
-                btnTheme.setIcon(new ImageIcon(iconURL));
-            } else {
-                System.out.println("Icon not found: /icons/sun.png");
-            }
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
+        JLabel lblThemeIcon = new JLabel("🌤️");
+        lblThemeIcon.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 16));
 
-        btnTheme.addActionListener(e -> {
-            try {
-                ThemeManager.toggleTheme(this, btnTheme);
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-        });
+        JLabel lblThemeText = new JLabel("Light/Dark Theme");
+        lblThemeText.setFont(new Font("Segoe UI", Font.PLAIN, 14));
 
-        themePanel.add(lblTheme);
-        themePanel.add(btnTheme);
+        JToggleButton toggleTheme = new JToggleButton();
+        toggleTheme.setPreferredSize(new Dimension(50, 25));
+        toggleTheme.setFocusable(false);
+        toggleTheme.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        toggleTheme.addActionListener(e -> ThemeManager.toggleTheme(this, new JButton()));
+
+        themePanel.add(lblThemeIcon);
+        themePanel.add(lblThemeText);
+        themePanel.add(toggleTheme);
+
+        topPanel.add(themePanel, BorderLayout.EAST);
+        add(topPanel, BorderLayout.NORTH);
 
         topPanel.add(btnBack, BorderLayout.WEST);
         topPanel.add(themePanel, BorderLayout.EAST);
@@ -170,9 +160,9 @@ public class InvoiceForm extends JFrame {
         JPanel btnPanel = new JPanel(new GridLayout(3, 1, 10, 10));
         btnPanel.setOpaque(false);
 
-        btnSave = createActionButton("💾  Save Invoice", new Color(33, 150, 243));
-        btnNewInvoice = createActionButton("➕  New Invoice", new Color(100, 181, 246));
-        btnPrint = createActionButton("🖨️  Print", new Color(129, 199, 132));
+        btnSave = createActionButton("Save Invoice", new Color(33, 150, 243));
+        btnNewInvoice = createActionButton("New Invoice", new Color(100, 181, 246));
+        btnPrint = createActionButton("Print", new Color(129, 199, 132));
 
         btnSave.addActionListener(e -> saveInvoice());
         btnNewInvoice.addActionListener(e -> clearInvoice());
