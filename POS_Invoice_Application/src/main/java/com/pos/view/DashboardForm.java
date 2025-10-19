@@ -44,7 +44,7 @@ public class DashboardForm extends JFrame {
         topBar.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
 
         JLabel lblThemeText = new JLabel("Light Theme");
-        lblThemeText.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        lblThemeText.setFont(new Font("Segoe UI", Font.PLAIN, 16));
 
         JPanel themePanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
         themePanel.setOpaque(false);

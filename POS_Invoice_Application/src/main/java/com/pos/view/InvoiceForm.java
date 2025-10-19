@@ -102,14 +102,34 @@ public class InvoiceForm extends JFrame {
         JPanel leftPanel = new JPanel(new BorderLayout(10, 10));
         leftPanel.setOpaque(false);
 
-        txtSearch = new JTextField();
+        txtSearch = new JTextField("Search by Item, Code, or Category");
         txtSearch.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        txtSearch.setForeground(Color.GRAY);
         txtSearch.setPreferredSize(new Dimension(0, 40));
         txtSearch.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(new Color(200, 200, 200), 1),
                 new EmptyBorder(5, 10, 5, 10)
         ));
         txtSearch.setToolTipText("Search by Item, Code, or Category");
+
+        txtSearch.addFocusListener(new java.awt.event.FocusAdapter() {
+            @Override
+            public void focusGained(java.awt.event.FocusEvent e) {
+                if (txtSearch.getText().equals("Search by Item, Code, or Category")) {
+                    txtSearch.setText("");
+                    txtSearch.setForeground(Color.BLACK);
+                }
+            }
+
+            @Override
+            public void focusLost(java.awt.event.FocusEvent e) {
+                if (txtSearch.getText().trim().isEmpty()) {
+                    txtSearch.setText("🔍 Search by Item, Code, or Category");
+                    txtSearch.setForeground(Color.GRAY);
+                }
+            }
+        });
+
         leftPanel.add(txtSearch, BorderLayout.NORTH);
 
         JPanel itemGrid = new JPanel(new GridLayout(0, 3, 15, 15));
@@ -206,6 +226,9 @@ public class InvoiceForm extends JFrame {
 
     private void filterItems(JPanel itemGrid) {
         String keyword = txtSearch.getText().trim().toLowerCase();
+        if (keyword.equals("🔍 search by item, code, or category")) {
+            keyword = "";
+        }
         itemGrid.removeAll();
         for (Item item : availableItems) {
             if (item.getItemName().toLowerCase().contains(keyword)
@@ -360,6 +383,8 @@ public class InvoiceForm extends JFrame {
         lblSubtotal.setText("$0.00");
         lblTotal.setText("Grand Total: $0.00");
         lblInvoiceNo.setText("INV-" + UUID.randomUUID().toString().substring(0, 8));
+        txtSearch.setText("Search by Item, Code, or Category");
+        txtSearch.setForeground(Color.GRAY);
     }
 
     public static void main(String[] args) {
