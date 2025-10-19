@@ -129,6 +129,7 @@ public class LoginForm extends JFrame {
             User user = userController.login(username, password);
             if (user != null) {
                 showWelcomeAndClose(user.getUsername());
+                new DashboardForm().setVisible(true);
             } else {
                 JOptionPane.showMessageDialog(this, "Invalid credentials!",
                         "Login Failed", JOptionPane.ERROR_MESSAGE);
