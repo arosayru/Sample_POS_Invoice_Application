@@ -6,6 +6,7 @@ import com.pos.model.Invoice;
 import com.pos.model.InvoiceItem;
 import com.pos.util.PDFGenerator;
 import com.pos.util.ThemeManager;
+import com.toedter.calendar.JDateChooser;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -15,14 +16,16 @@ import javax.swing.table.TableCellRenderer;
 import java.awt.*;
 import java.awt.event.*;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 public class InvoiceHistoryForm extends JFrame {
     private JTable tblInvoices;
     private DefaultTableModel tableModel;
     private JTextField txtInvoiceSearch;
-    private JTextField txtFromDate;
-    private JTextField txtToDate;
+    private JDateChooser dateFromChooser;
+    private JDateChooser dateToChooser;
     private JButton btnSearch;
     private JButton btnBack;
     private JToggleButton toggleTheme;
@@ -87,23 +90,23 @@ public class InvoiceHistoryForm extends JFrame {
         fgb.weightx = 0;
         filterPanel.add(new JLabel("From Date:"), fgb);
 
-        txtFromDate = new JTextField();
-        txtFromDate.setToolTipText("From date (not wired to filter yet)");
-        txtFromDate.setPreferredSize(new Dimension(160, 30));
+        dateFromChooser = new JDateChooser();
+        dateFromChooser.setDateFormatString("yyyy-MM-dd");
+        dateFromChooser.setPreferredSize(new Dimension(160, 30));
         fgb.gridx = 1;
         fgb.weightx = 0.15;
-        filterPanel.add(withCalendarIcon(txtFromDate), fgb);
+        filterPanel.add(dateFromChooser, fgb);
 
         fgb.gridx = 2;
         fgb.weightx = 0;
         filterPanel.add(new JLabel("To Date:"), fgb);
 
-        txtToDate = new JTextField();
-        txtToDate.setToolTipText("To date (not wired to filter yet)");
-        txtToDate.setPreferredSize(new Dimension(160, 30));
+        dateToChooser = new JDateChooser();
+        dateToChooser.setDateFormatString("yyyy-MM-dd");
+        dateToChooser.setPreferredSize(new Dimension(160, 30));
         fgb.gridx = 3;
         fgb.weightx = 0.15;
-        filterPanel.add(withCalendarIcon(txtToDate), fgb);
+        filterPanel.add(dateToChooser, fgb);
 
         fgb.gridx = 4;
         fgb.weightx = 0;
@@ -128,7 +131,6 @@ public class InvoiceHistoryForm extends JFrame {
         headerContainer.setOpaque(false);
         headerContainer.add(topPanel, BorderLayout.NORTH);
         headerContainer.add(filterPanel, BorderLayout.SOUTH);
-
         add(headerContainer, BorderLayout.NORTH);
 
         tableModel = new DefaultTableModel(new Object[]{
@@ -179,16 +181,6 @@ public class InvoiceHistoryForm extends JFrame {
         setLocationRelativeTo(null);
     }
 
-    private JPanel withCalendarIcon(JTextField field) {
-        JPanel p = new JPanel(new BorderLayout(6, 6));
-        p.setOpaque(false);
-        JLabel cal = new JLabel("\uD83D\uDCC5");
-        cal.setBorder(new EmptyBorder(0, 6, 0, 6));
-        p.add(cal, BorderLayout.WEST);
-        p.add(field, BorderLayout.CENTER);
-        return p;
-    }
-
     private void loadInvoices() {
         try {
             tableModel.setRowCount(0);
@@ -213,10 +205,18 @@ public class InvoiceHistoryForm extends JFrame {
 
     private void searchInvoice() {
         String keyword = txtInvoiceSearch.getText().trim();
+
+        Date from = dateFromChooser.getDate();
+        Date to = dateToChooser.getDate();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        System.out.println("Search clicked | From: " + (from != null ? sdf.format(from) : "none")
+                + " | To: " + (to != null ? sdf.format(to) : "none"));
+
         if (keyword.isEmpty()) {
             loadInvoices();
             return;
         }
+
         try {
             Invoice inv = new InvoiceHistoryDAO().getInvoiceByNumber(keyword);
             tableModel.setRowCount(0);
