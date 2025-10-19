@@ -9,7 +9,6 @@ import java.util.List;
 
 public class ItemDAO {
 
-    // Add new item
     public void addItem(Item item) throws SQLException {
         String sql = "INSERT INTO items (item_code, item_name, category, cost, wholesale_price, retail_price, label_price, credit_price, status, image_path) " +
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
@@ -32,7 +31,6 @@ public class ItemDAO {
         }
     }
 
-    // Retrieve all items
     public List<Item> getAllItems() throws SQLException {
         List<Item> items = new ArrayList<>();
         String sql = "SELECT * FROM items ORDER BY id DESC";
@@ -48,7 +46,9 @@ public class ItemDAO {
                 item.setItemName(rs.getString("item_name"));
                 item.setCategory(rs.getString("category"));
                 item.setCost(rs.getDouble("cost"));
+                item.setWholesalePrice(rs.getDouble("wholesale_price"));
                 item.setRetailPrice(rs.getDouble("retail_price"));
+                item.setWholesalePrice(rs.getDouble("wholesale_price"));
                 item.setStatus(rs.getString("status"));
                 items.add(item);
             }

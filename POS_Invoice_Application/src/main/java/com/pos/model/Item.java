@@ -13,7 +13,6 @@ public class Item {
     private String status;
     private String imagePath;
 
-    // --- Constructors ---
     public Item() {}
 
     public Item(int id, String itemCode, String itemName, String category,
