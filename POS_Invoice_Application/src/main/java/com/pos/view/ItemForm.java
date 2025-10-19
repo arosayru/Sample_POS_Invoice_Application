@@ -6,200 +6,316 @@ import com.pos.model.Item;
 import com.pos.util.ThemeManager;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.sql.SQLException;
 import java.util.List;
 
 public class ItemForm extends JFrame {
-    private JTextField txtCode, txtName, txtCategory, txtCost, txtWholesale, txtRetail;
-    private JButton btnSave, btnTheme, btnUpdate, btnDelete;
+    private JTextField txtSearch;
+    private JButton btnAddItem, btnBack;
     private JTable tblItems;
     private DefaultTableModel tableModel;
-
+    private List<Item> items;
     private final ItemController itemController;
-    private int selectedItemId = -1;
 
     public ItemForm() {
         itemController = new ItemController();
 
+        FlatLightLaf.setup();
+        initUI();
+        setVisible(true);
+        loadItems();
+    }
+
+    private void initUI() {
         setTitle("Item Management");
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setSize(700, 500);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setExtendedState(JFrame.MAXIMIZED_BOTH);
+        getContentPane().setBackground(new Color(245, 247, 250));
         setLayout(new BorderLayout(10, 10));
-        setLocationRelativeTo(null);
 
-        JPanel top = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        btnTheme = new JButton();
-        btnTheme.setFocusPainted(false);
-        btnTheme.setBorderPainted(false);
-        btnTheme.setContentAreaFilled(false);
-        btnTheme.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        btnTheme.setPreferredSize(new Dimension(32, 32));
-        btnTheme.setToolTipText("Toggle Theme");
+        // ===== TOP PANEL =====
+        JPanel topPanel = new JPanel(new BorderLayout(10, 10));
+        topPanel.setOpaque(false);
+        topPanel.setBorder(new EmptyBorder(15, 20, 10, 20));
 
-        java.net.URL iconURL = getClass().getResource("/icons/sun.png");
-        if (iconURL != null) btnTheme.setIcon(new ImageIcon(iconURL));
-        btnTheme.addActionListener(e -> ThemeManager.toggleTheme(this, btnTheme));
+        // Back Button
+        btnBack = new JButton("← Back");
+        btnBack.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        btnBack.setFocusPainted(false);
+        btnBack.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        btnBack.addActionListener(e -> {
+            dispose();
+            new DashboardForm().setVisible(true);
+        });
+        topPanel.add(btnBack, BorderLayout.WEST);
 
-        top.add(btnTheme);
-        add(top, BorderLayout.NORTH);
+        // Theme Toggle Panel
+        JPanel themePanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
+        themePanel.setOpaque(false);
+        JLabel lblThemeIcon = new JLabel("🌤️");
+        lblThemeIcon.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 16));
+        JLabel lblThemeText = new JLabel("Light / Dark Theme");
+        lblThemeText.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        JToggleButton toggleTheme = new JToggleButton();
+        toggleTheme.setPreferredSize(new Dimension(50, 25));
+        toggleTheme.setFocusable(false);
+        toggleTheme.addActionListener(e -> ThemeManager.toggleTheme(this, new JButton()));
+        themePanel.add(lblThemeIcon);
+        themePanel.add(lblThemeText);
+        themePanel.add(toggleTheme);
+        topPanel.add(themePanel, BorderLayout.EAST);
 
-        JPanel formPanel = new JPanel(new GridLayout(0, 2, 10, 10));
-        formPanel.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+        add(topPanel, BorderLayout.NORTH);
 
-        formPanel.add(new JLabel("Item Code:"));
-        txtCode = new JTextField(); formPanel.add(txtCode);
+        // ===== CENTER PANEL =====
+        JPanel centerPanel = new JPanel(new BorderLayout(15, 15));
+        centerPanel.setOpaque(false);
+        centerPanel.setBorder(new EmptyBorder(10, 60, 40, 60));
 
-        formPanel.add(new JLabel("Item Name:"));
-        txtName = new JTextField(); formPanel.add(txtName);
+        JLabel lblTitle = new JLabel("Item Management", SwingConstants.CENTER);
+        lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 28));
+        lblTitle.setBorder(new EmptyBorder(0, 0, 15, 0));
+        centerPanel.add(lblTitle, BorderLayout.NORTH);
 
-        formPanel.add(new JLabel("Category:"));
-        txtCategory = new JTextField(); formPanel.add(txtCategory);
+        // ===== SEARCH + ADD PANEL =====
+        JPanel searchPanel = new JPanel(new BorderLayout(10, 10));
+        searchPanel.setOpaque(false);
 
-        formPanel.add(new JLabel("Cost:"));
-        txtCost = new JTextField(); formPanel.add(txtCost);
+        // Search Field
+        txtSearch = new JTextField();
+        txtSearch.setFont(new Font("Segoe UI", Font.PLAIN, 15));
+        txtSearch.setPreferredSize(new Dimension(350, 35));
+        txtSearch.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(200, 200, 200), 1),
+                new EmptyBorder(5, 12, 5, 12)
+        ));
+        txtSearch.setForeground(Color.GRAY);
+        txtSearch.setText("🔍 Search by Item Name, Code, or Category");
 
-        formPanel.add(new JLabel("Wholesale Price:"));
-        txtWholesale = new JTextField(); formPanel.add(txtWholesale);
+        txtSearch.addFocusListener(new java.awt.event.FocusAdapter() {
+            @Override
+            public void focusGained(java.awt.event.FocusEvent e) {
+                if (txtSearch.getText().equals("🔍 Search by Item Name, Code, or Category")) {
+                    txtSearch.setText("");
+                    txtSearch.setForeground(Color.BLACK);
+                }
+            }
 
-        formPanel.add(new JLabel("Retail Price:"));
-        txtRetail = new JTextField(); formPanel.add(txtRetail);
-
-        btnSave = new JButton("Add Item");
-        btnSave.addActionListener(e -> saveItem());
-        btnUpdate = new JButton("Update Item");
-        btnUpdate.addActionListener(e -> updateItem());
-        btnDelete = new JButton("Delete Item");
-        btnDelete.addActionListener(e -> deleteItem());
-
-        formPanel.add(btnSave);
-        formPanel.add(btnUpdate);
-        formPanel.add(new JLabel());
-        formPanel.add(btnDelete);
-
-        add(formPanel, BorderLayout.NORTH);
-
-        // Table for item list
-        tableModel = new DefaultTableModel(new Object[]{"ID", "Code", "Name", "Category", "Cost", "Wholesale", "Retail", "Status"}, 0);
-        tblItems = new JTable(tableModel);
-        add(new JScrollPane(tblItems), BorderLayout.CENTER);
-
-        // When clicking on a row, fill data into the form for editing
-        tblItems.getSelectionModel().addListSelectionListener(e -> {
-            if (!e.getValueIsAdjusting() && tblItems.getSelectedRow() != -1) {
-                selectedItemId = (int) tableModel.getValueAt(tblItems.getSelectedRow(), 0);
-                txtCode.setText((String) tableModel.getValueAt(tblItems.getSelectedRow(), 1));
-                txtName.setText((String) tableModel.getValueAt(tblItems.getSelectedRow(), 2));
-                txtCategory.setText((String) tableModel.getValueAt(tblItems.getSelectedRow(), 3));
-                txtCost.setText(String.valueOf(tableModel.getValueAt(tblItems.getSelectedRow(), 4)));
-                txtWholesale.setText(String.valueOf(tableModel.getValueAt(tblItems.getSelectedRow(), 5)));
-                txtRetail.setText(String.valueOf(tableModel.getValueAt(tblItems.getSelectedRow(), 6)));
+            @Override
+            public void focusLost(java.awt.event.FocusEvent e) {
+                if (txtSearch.getText().trim().isEmpty()) {
+                    txtSearch.setText("🔍 Search by Item Name, Code, or Category");
+                    txtSearch.setForeground(Color.GRAY);
+                }
             }
         });
 
-        loadItems();
-        setVisible(true);
+        txtSearch.addKeyListener(new java.awt.event.KeyAdapter() {
+            @Override
+            public void keyReleased(java.awt.event.KeyEvent e) {
+                String query = txtSearch.getText().trim().toLowerCase();
+                if (query.isEmpty() || query.equals("🔍 search by item name, code, or category")) {
+                    refreshTable(items);
+                    return;
+                }
+
+                List<Item> filtered = items.stream()
+                        .filter(item -> item.getItemName().toLowerCase().contains(query)
+                                || item.getItemCode().toLowerCase().contains(query)
+                                || (item.getCategory() != null && item.getCategory().toLowerCase().contains(query)))
+                        .toList();
+                refreshTable(filtered);
+            }
+        });
+
+        // Add Item Button
+        btnAddItem = new JButton("+ Add New Item");
+        btnAddItem.setFont(new Font("Segoe UI", Font.BOLD, 15));
+        btnAddItem.setBackground(new Color(67, 160, 71));
+        btnAddItem.setForeground(Color.WHITE);
+        btnAddItem.setFocusPainted(false);
+        btnAddItem.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+        btnAddItem.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        btnAddItem.addActionListener(e -> openAddItemDialog());
+
+        searchPanel.add(txtSearch, BorderLayout.CENTER);
+        searchPanel.add(btnAddItem, BorderLayout.EAST);
+        centerPanel.add(searchPanel, BorderLayout.CENTER);
+
+        // ===== TABLE =====
+        String[] columns = {"ID", "Code", "Name", "Category", "Cost", "Wholesale", "Retail", "Label", "Credit", "Status"};
+        tableModel = new DefaultTableModel(columns, 0);
+        tblItems = new JTable(tableModel);
+        tblItems.setRowHeight(28);
+        tblItems.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        tblItems.setGridColor(new Color(230, 230, 230));
+        tblItems.setSelectionBackground(new Color(200, 230, 255));
+        tblItems.setFillsViewportHeight(true);
+
+        JScrollPane scrollPane = new JScrollPane(tblItems);
+        scrollPane.setBorder(BorderFactory.createLineBorder(new Color(230, 230, 230)));
+        scrollPane.getViewport().setBackground(Color.WHITE);
+        scrollPane.setPreferredSize(new Dimension(0, 450));
+
+        centerPanel.add(scrollPane, BorderLayout.SOUTH);
+        add(centerPanel, BorderLayout.CENTER);
     }
 
     private void loadItems() {
         try {
-            tableModel.setRowCount(0);
-            List<Item> items = itemController.getAllItems();
-            for (Item item : items) {
-                tableModel.addRow(new Object[]{
-                        item.getId(), item.getItemCode(), item.getItemName(),
-                        item.getCategory(), item.getCost(),
-                        item.getWholesalePrice(), item.getRetailPrice(),
-                        item.getStatus()
-                });
-            }
+            items = itemController.getAllItems();
+            refreshTable(items);
         } catch (SQLException e) {
-            JOptionPane.showMessageDialog(this, "Failed to load items: " + e.getMessage());
+            JOptionPane.showMessageDialog(this, "Failed to load items: " + e.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
-    private void saveItem() {
-        try {
-            Item item = new Item();
-            item.setItemCode(txtCode.getText());
-            item.setItemName(txtName.getText());
-            item.setCategory(txtCategory.getText());
-            item.setCost(Double.parseDouble(txtCost.getText()));
-            item.setWholesalePrice(Double.parseDouble(txtWholesale.getText()));
-            item.setRetailPrice(Double.parseDouble(txtRetail.getText()));
-            item.setStatus("Active");
-
-            itemController.addItem(item);
-            JOptionPane.showMessageDialog(this, "Item added successfully!");
-            clearForm();
-            loadItems();
-
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Error: " + e.getMessage());
+    private void refreshTable(List<Item> list) {
+        tableModel.setRowCount(0);
+        for (Item item : list) {
+            tableModel.addRow(new Object[]{
+                    item.getId(),
+                    item.getItemCode(),
+                    item.getItemName(),
+                    item.getCategory(),
+                    item.getCost(),
+                    item.getWholesalePrice(),
+                    item.getRetailPrice(),
+                    item.getLabelPrice(),
+                    item.getCreditPrice(),
+                    item.getStatus()
+            });
         }
     }
 
-    private void updateItem() {
-        if (selectedItemId == -1) {
-            JOptionPane.showMessageDialog(this, "Please select an item to update.");
-            return;
-        }
+    private void openAddItemDialog() {
+        JDialog dialog = new JDialog(this, "Add New Item", true);
+        dialog.setSize(450, 550);
+        dialog.setLocationRelativeTo(this);
+        dialog.setResizable(false);
+        dialog.getContentPane().setBackground(new Color(245, 247, 250));
+        dialog.setLayout(new BorderLayout(15, 15));
 
-        try {
-            Item item = new Item();
-            item.setId(selectedItemId);
-            item.setItemCode(txtCode.getText());
-            item.setItemName(txtName.getText());
-            item.setCategory(txtCategory.getText());
-            item.setCost(Double.parseDouble(txtCost.getText()));
-            item.setWholesalePrice(Double.parseDouble(txtWholesale.getText()));
-            item.setRetailPrice(Double.parseDouble(txtRetail.getText()));
-            item.setStatus("Active");
+        JLabel lblTitle = new JLabel("Add New Item", SwingConstants.CENTER);
+        lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 20));
+        lblTitle.setBorder(new EmptyBorder(15, 10, 5, 10));
+        dialog.add(lblTitle, BorderLayout.NORTH);
 
-            itemController.updateItem(item);
-            JOptionPane.showMessageDialog(this, "Item updated successfully!");
-            clearForm();
-            loadItems();
+        JPanel formPanel = new JPanel(new GridLayout(0, 2, 10, 10));
+        formPanel.setBorder(new EmptyBorder(20, 30, 20, 30));
+        formPanel.setOpaque(false);
 
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Error: " + e.getMessage());
-        }
-    }
+        JTextField txtCode = createInputField();
+        JTextField txtName = createInputField();
+        JTextField txtCategory = createInputField();
+        JTextField txtCost = createInputField();
+        JTextField txtWholesale = createInputField();
+        JTextField txtRetail = createInputField();
+        JTextField txtLabel = createInputField();
+        JTextField txtCredit = createInputField();
 
-    private void deleteItem() {
-        if (selectedItemId == -1) {
-            JOptionPane.showMessageDialog(this, "Please select an item to delete.");
-            return;
-        }
+        JComboBox<String> cmbStatus = new JComboBox<>(new String[]{"Active", "Inactive"});
 
-        int confirm = JOptionPane.showConfirmDialog(this, "Are you sure you want to delete this item?",
-                "Confirm Delete", JOptionPane.YES_NO_OPTION);
-        if (confirm == JOptionPane.YES_OPTION) {
+        formPanel.add(createLabel("Item Code:"));
+        formPanel.add(txtCode);
+        formPanel.add(createLabel("Item Name:"));
+        formPanel.add(txtName);
+        formPanel.add(createLabel("Category:"));
+        formPanel.add(txtCategory);
+        formPanel.add(createLabel("Cost:"));
+        formPanel.add(txtCost);
+        formPanel.add(createLabel("Wholesale Price:"));
+        formPanel.add(txtWholesale);
+        formPanel.add(createLabel("Retail Price:"));
+        formPanel.add(txtRetail);
+        formPanel.add(createLabel("Label Price:"));
+        formPanel.add(txtLabel);
+        formPanel.add(createLabel("Credit Price:"));
+        formPanel.add(txtCredit);
+        formPanel.add(createLabel("Status:"));
+        formPanel.add(cmbStatus);
+
+        dialog.add(formPanel, BorderLayout.CENTER);
+
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
+        buttonPanel.setOpaque(false);
+
+        JButton btnSave = new JButton("Save Item");
+        btnSave.setFont(new Font("Segoe UI", Font.BOLD, 15));
+        btnSave.setBackground(new Color(33, 150, 243));
+        btnSave.setForeground(Color.WHITE);
+        btnSave.setFocusPainted(false);
+        btnSave.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+        btnSave.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+
+        JButton btnCancel = new JButton("Cancel");
+        btnCancel.setFont(new Font("Segoe UI", Font.PLAIN, 15));
+        btnCancel.setBackground(new Color(189, 189, 189));
+        btnCancel.setForeground(Color.WHITE);
+        btnCancel.setFocusPainted(false);
+        btnCancel.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+        btnCancel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+
+        btnCancel.addActionListener(e -> dialog.dispose());
+
+        btnSave.addActionListener(e -> {
             try {
-                itemController.deleteItem(selectedItemId);
-                JOptionPane.showMessageDialog(this, "Item deleted successfully!");
-                clearForm();
+                if (txtCode.getText().trim().isEmpty() || txtName.getText().trim().isEmpty()) {
+                    JOptionPane.showMessageDialog(dialog, "Please fill all required fields!");
+                    return;
+                }
+
+                Item newItem = new Item();
+                newItem.setItemCode(txtCode.getText().trim());
+                newItem.setItemName(txtName.getText().trim());
+                newItem.setCategory(txtCategory.getText().trim());
+                newItem.setCost(Double.parseDouble(txtCost.getText().trim()));
+                newItem.setWholesalePrice(Double.parseDouble(txtWholesale.getText().trim()));
+                newItem.setRetailPrice(Double.parseDouble(txtRetail.getText().trim()));
+                newItem.setLabelPrice(Double.parseDouble(txtLabel.getText().trim()));
+                newItem.setCreditPrice(Double.parseDouble(txtCredit.getText().trim()));
+                newItem.setStatus((String) cmbStatus.getSelectedItem());
+
+                itemController.addItem(newItem);
+                JOptionPane.showMessageDialog(this, "Item added successfully!");
                 loadItems();
-            } catch (Exception e) {
-                JOptionPane.showMessageDialog(this, "Error deleting item: " + e.getMessage());
+                dialog.dispose();
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(dialog, "Error: " + ex.getMessage());
             }
-        }
+        });
+
+        buttonPanel.add(btnSave);
+        buttonPanel.add(btnCancel);
+
+        dialog.add(buttonPanel, BorderLayout.SOUTH);
+        dialog.getRootPane().setDefaultButton(btnSave);
+        dialog.setVisible(true);
     }
 
-    private void clearForm() {
-        txtCode.setText("");
-        txtName.setText("");
-        txtCategory.setText("");
-        txtCost.setText("");
-        txtWholesale.setText("");
-        txtRetail.setText("");
-        selectedItemId = -1;
-        tblItems.clearSelection();
+    private JLabel createLabel(String text) {
+        JLabel label = new JLabel(text);
+        label.setFont(new Font("Segoe UI", Font.PLAIN, 15));
+        label.setForeground(Color.DARK_GRAY);
+        return label;
+    }
+
+    private JTextField createInputField() {
+        JTextField field = new JTextField();
+        field.setFont(new Font("Segoe UI", Font.PLAIN, 15));
+        field.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(200, 200, 200), 1),
+                new EmptyBorder(8, 10, 8, 10)
+        ));
+        return field;
     }
 
     public static void main(String[] args) {
         FlatLightLaf.setup();
-        new ItemForm();
+        SwingUtilities.invokeLater(ItemForm::new);
     }
 }
