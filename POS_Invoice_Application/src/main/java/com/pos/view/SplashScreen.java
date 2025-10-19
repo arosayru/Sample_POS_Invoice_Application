@@ -82,7 +82,7 @@ public class SplashScreen extends JWindow {
     }
 
     private void startLoadingAnimation() {
-        dotTimer = new Timer(300, e -> {
+        dotTimer = new Timer(600, e -> {
             dotCount = (dotCount + 1) % 4;
             StringBuilder dots = new StringBuilder();
             for (int i = 0; i < 4; i++) {
